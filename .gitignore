@@ -1,0 +1,20 @@
+# Environment files
+.env
+.env.*
+services/auth-service/.env
+services/product-service/.env
+services/order-service/.env
+services/notification-service/.env
+
+# Dependencies
+node_modules/
+*/node_modules/
+services/*/node_modules/
+frontend/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store

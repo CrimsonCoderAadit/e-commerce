@@ -1,0 +1,56 @@
+# Local development overrides — applied automatically on top of docker-compose.yml
+# Mounts source code as volumes (no rebuild needed for code changes) and enables nodemon.
+# Usage: docker-compose up --build   (override is picked up automatically)
+
+services:
+  auth-service:
+    build:
+      context: ./services/auth-service
+      target: devdeps          # use the stage that includes devDependencies (nodemon)
+    volumes:
+      - ./services/auth-service/src:/app/src
+    environment:
+      - NODE_ENV=development
+    command: npx nodemon src/index.js
+
+  product-service:
+    build:
+      context: ./services/product-service
+      target: devdeps
+    volumes:
+      - ./services/product-service/src:/app/src
+    environment:
+      - NODE_ENV=development
+    command: npx nodemon src/index.js
+
+  order-service:
+    build:
+      context: ./services/order-service
+      target: devdeps
+    volumes:
+      - ./services/order-service/src:/app/src
+    environment:
+      - NODE_ENV=development
+    command: npx nodemon src/index.js
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+      target: devdeps
+    volumes:
+      - ./services/notification-service/src:/app/src
+    environment:
+      - NODE_ENV=development
+    command: npx nodemon src/index.js
+
+  frontend:
+    build:
+      context: ./frontend
+      target: devdeps          # node image with all deps; serves via Vite dev server
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/public:/app/public
+    environment:
+      - NODE_ENV=development
+    command: npm run dev

@@ -1,0 +1,109 @@
+# Render.com deployment configuration
+# Docs: https://render.com/docs/yaml-spec
+#
+# Before deploying:
+#   1. Create a free MongoDB Atlas cluster and get the connection string
+#   2. Set all `sync: false` env vars manually in the Render dashboard
+#   3. Push this repo to GitHub and connect it in Render
+
+services:
+  # ── Auth Service ───────────────────────────────────────────────────────
+  - type: web
+    name: shopease-auth
+    runtime: docker
+    dockerfilePath: ./services/auth-service/Dockerfile
+    dockerContext: ./services/auth-service
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4001
+      - key: MONGO_URI
+        sync: false           # set in Render dashboard (MongoDB Atlas URI)
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false           # set to your Render frontend URL after first deploy
+
+  # ── Product Service ────────────────────────────────────────────────────
+  - type: web
+    name: shopease-products
+    runtime: docker
+    dockerfilePath: ./services/product-service/Dockerfile
+    dockerContext: ./services/product-service
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4002
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false           # must match shopease-auth JWT_ACCESS_SECRET
+      - key: REDIS_URL
+        fromService:
+          name: shopease-redis
+          type: redis
+          property: connectionString
+
+  # ── Order Service ──────────────────────────────────────────────────────
+  - type: web
+    name: shopease-orders
+    runtime: docker
+    dockerfilePath: ./services/order-service/Dockerfile
+    dockerContext: ./services/order-service
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4003
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      - key: RABBITMQ_URL
+        sync: false           # use CloudAMQP free tier
+
+  # ── Notification Service (background worker) ───────────────────────────
+  - type: worker
+    name: shopease-notifications
+    runtime: docker
+    dockerfilePath: ./services/notification-service/Dockerfile
+    dockerContext: ./services/notification-service
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: RABBITMQ_URL
+        sync: false
+      - key: NOTIFICATION_EMAIL
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: 587
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+
+  # ── Frontend (static via nginx) ────────────────────────────────────────
+  - type: web
+    name: shopease-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    healthCheckPath: /
+    envVars:
+      - key: VITE_APP_NAME
+        value: ShopEase
+
+# ── Managed Redis ──────────────────────────────────────────────────────────
+  - type: redis
+    name: shopease-redis
+    plan: free
+    ipAllowList: []           # restrict to internal Render network only
