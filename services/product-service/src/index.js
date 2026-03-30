@@ -19,6 +19,16 @@ app.get('/health', (_req, res) => res.json({ status: 'ok', service: 'product-ser
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products',   productRoutes);
 
+app.get('/seed', async (req, res) => {
+  try {
+    const { seedDatabase } = require('./seed');
+    await seedDatabase();
+    res.json({ message: 'Seeded successfully' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
