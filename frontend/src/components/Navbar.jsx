@@ -17,7 +17,7 @@ export default function Navbar() {
         const count = (data.items ?? []).reduce((s, i) => s + i.quantity, 0);
         setCartCount(count);
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => { fetchCartCount(); }, [user]);
@@ -70,10 +70,16 @@ export default function Navbar() {
                   )}
                 </Link>
 
-                {/* Orders */}
-                <Link to="/orders" className="text-gray-300 hover:text-white text-sm hidden md:block">
-                  Orders
-                </Link>
+                {/* Orders / Admin */}
+                {user.role === 'admin' ? (
+                  <Link to="/admin" className="text-amber hover:text-amber-light text-sm hidden md:block font-medium">
+                    Admin
+                  </Link>
+                ) : (
+                  <Link to="/orders" className="text-gray-300 hover:text-white text-sm hidden md:block">
+                    Orders
+                  </Link>
+                )}
 
                 {/* User menu */}
                 <div className="relative">

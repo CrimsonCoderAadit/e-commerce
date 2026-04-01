@@ -1,4 +1,4 @@
-const Cart  = require('../models/Cart');
+const Cart = require('../models/Cart');
 const Order = require('../models/Order');
 const { publishEvent } = require('../rabbitmq');
 
@@ -28,11 +28,11 @@ exports.checkout = async (req, res) => {
     await cart.save();
 
     await publishEvent('order.placed', {
-      orderId:     order._id,
-      userId:      order.userId,
-      items:       order.items,
+      orderId: order._id,
+      userId: order.userId,
+      items: order.items,
       totalAmount: order.totalAmount,
-      timestamp:   new Date().toISOString(),
+      timestamp: new Date().toISOString(),
     });
 
     res.status(201).json({ order });
@@ -44,7 +44,8 @@ exports.checkout = async (req, res) => {
 // GET /api/orders
 exports.getAll = async (req, res) => {
   try {
-    const orders = await Order.find({ userId: req.user.userId }).sort({ createdAt: -1 });
+    const filter = req.user.role === 'admin' ? {} : { userId: req.user.userId };
+    const orders = await Order.find(filter).sort({ createdAt: -1 });
     res.json({ orders });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -86,9 +87,9 @@ exports.updateStatus = async (req, res) => {
     if (!order) return res.status(404).json({ error: 'Order not found' });
 
     await publishEvent('order.status_updated', {
-      orderId:   order._id,
-      userId:    order.userId,
-      status:    order.status,
+      orderId: order._id,
+      userId: order.userId,
+      status: order.status,
       timestamp: new Date().toISOString(),
     });
 
