@@ -13,7 +13,7 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     api.get(`/products/${id}`)
-      .then(({ data }) => setProduct(data))
+      .then(({ data }) => setProduct(data.product))
       .catch(() => setProduct(null))
       .finally(() => setLoading(false));
   }, [id]);
