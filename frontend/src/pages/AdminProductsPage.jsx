@@ -8,13 +8,13 @@ function ProductModal({ categories, initial, onClose, onSaved }) {
   const [form, setForm] = useState(
     initial
       ? {
-          name: initial.name ?? '',
-          description: initial.description ?? '',
-          price: initial.price ?? '',
-          stock: initial.stock ?? '',
-          category: initial.category?._id ?? initial.category ?? '',
-          imageUrl: initial.imageUrl ?? '',
-        }
+        name: initial.name ?? '',
+        description: initial.description ?? '',
+        price: initial.price ?? '',
+        stock: initial.stock ?? '',
+        category: initial.category?._id ?? initial.category ?? '',
+        imageUrl: initial.imageUrl ?? '',
+      }
       : EMPTY_FORM
   );
   const [saving, setSaving] = useState(false);
@@ -72,7 +72,7 @@ function ProductModal({ categories, initial, onClose, onSaved }) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <select required value={form.category} onChange={set('category')} className="input">
               <option value="">Select category</option>
-              {categories.map((c) => (
+              {(categories || []).map((c) => (
                 <option key={c._id} value={c._id}>{c.name}</option>
               ))}
             </select>
@@ -94,10 +94,10 @@ function ProductModal({ categories, initial, onClose, onSaved }) {
 }
 
 export default function AdminProductsPage() {
-  const [products, setProducts]     = useState([]);
+  const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading]       = useState(true);
-  const [modal, setModal]           = useState(null); // null | 'create' | product object
+  const [loading, setLoading] = useState(true);
+  const [modal, setModal] = useState(null); // null | 'create' | product object
 
   const fetchData = () => {
     setLoading(true);
@@ -105,8 +105,8 @@ export default function AdminProductsPage() {
       api.get('/products?limit=100'),
       api.get('/categories'),
     ]).then(([prods, cats]) => {
-      setProducts(prods.status === 'fulfilled' ? prods.value.data.products : []);
-      setCategories(cats.status === 'fulfilled' ? cats.value.data.categories : []);
+      setProducts(prods.status === 'fulfilled' ? (prods.value.data.products || []) : []);
+      setCategories(cats.status === 'fulfilled' ? (cats.value.data.categories || []) : []);
     }).finally(() => setLoading(false));
   };
 

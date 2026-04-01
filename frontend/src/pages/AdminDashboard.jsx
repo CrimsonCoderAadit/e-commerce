@@ -9,13 +9,13 @@ function ProductModal({ categories, initial, onClose, onSaved }) {
   const [form, setForm] = useState(
     initial
       ? {
-          name: initial.name ?? '',
-          description: initial.description ?? '',
-          price: initial.price ?? '',
-          stock: initial.stock ?? '',
-          category: initial.category?._id ?? initial.category ?? '',
-          imageUrl: initial.imageUrl ?? '',
-        }
+        name: initial.name ?? '',
+        description: initial.description ?? '',
+        price: initial.price ?? '',
+        stock: initial.stock ?? '',
+        category: initial.category?._id ?? initial.category ?? '',
+        imageUrl: initial.imageUrl ?? '',
+      }
       : EMPTY_FORM
   );
   const [saving, setSaving] = useState(false);
@@ -73,7 +73,7 @@ function ProductModal({ categories, initial, onClose, onSaved }) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
             <select required value={form.category} onChange={set('category')} className="input">
               <option value="">Select category</option>
-              {categories.map((c) => (
+              {(categories || []).map((c) => (
                 <option key={c._id} value={c._id}>{c.name}</option>
               ))}
             </select>
@@ -109,9 +109,9 @@ export default function AdminDashboard() {
       api.get('/categories'),
       api.get('/orders')
     ]).then(([prods, cats, ords]) => {
-      const p = prods.status === 'fulfilled' ? prods.value.data.products : [];
-      const c = cats.status === 'fulfilled' ? cats.value.data.categories : [];
-      const o = ords.status === 'fulfilled' ? (ords.value.data.orders || ords.value.data) : [];
+      const p = prods.status === 'fulfilled' ? (prods.value.data.products || []) : [];
+      const c = cats.status === 'fulfilled' ? (cats.value.data.categories || []) : [];
+      const o = ords.status === 'fulfilled' ? (ords.value.data.orders || ords.value.data || []) : [];
 
       setProducts(p);
       setCategories(c);
