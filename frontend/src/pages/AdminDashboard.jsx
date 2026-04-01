@@ -6,7 +6,18 @@ import OrderCard from '../components/OrderCard';
 const EMPTY_FORM = { name: '', description: '', price: '', stock: '', category: '', imageUrl: '' };
 
 function ProductModal({ categories, initial, onClose, onSaved }) {
-  const [form, setForm] = useState(initial ?? EMPTY_FORM);
+  const [form, setForm] = useState(
+    initial
+      ? {
+          name: initial.name ?? '',
+          description: initial.description ?? '',
+          price: initial.price ?? '',
+          stock: initial.stock ?? '',
+          category: initial.category?._id ?? initial.category ?? '',
+          imageUrl: initial.imageUrl ?? '',
+        }
+      : EMPTY_FORM
+  );
   const [saving, setSaving] = useState(false);
   const isEdit = Boolean(initial?._id);
 
@@ -99,7 +110,7 @@ export default function AdminDashboard() {
       api.get('/orders')
     ]).then(([prods, cats, ords]) => {
       const p = prods.status === 'fulfilled' ? prods.value.data.products : [];
-      const c = cats.status === 'fulfilled' ? cats.value.data : [];
+      const c = cats.status === 'fulfilled' ? cats.value.data.categories : [];
       const o = ords.status === 'fulfilled' ? (ords.value.data.orders || ords.value.data) : [];
 
       setProducts(p);

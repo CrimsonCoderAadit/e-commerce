@@ -5,7 +5,18 @@ import toast from 'react-hot-toast';
 const EMPTY_FORM = { name: '', description: '', price: '', stock: '', category: '', imageUrl: '' };
 
 function ProductModal({ categories, initial, onClose, onSaved }) {
-  const [form, setForm]     = useState(initial ?? EMPTY_FORM);
+  const [form, setForm] = useState(
+    initial
+      ? {
+          name: initial.name ?? '',
+          description: initial.description ?? '',
+          price: initial.price ?? '',
+          stock: initial.stock ?? '',
+          category: initial.category?._id ?? initial.category ?? '',
+          imageUrl: initial.imageUrl ?? '',
+        }
+      : EMPTY_FORM
+  );
   const [saving, setSaving] = useState(false);
   const isEdit = Boolean(initial?._id);
 
@@ -95,7 +106,7 @@ export default function AdminProductsPage() {
       api.get('/categories'),
     ]).then(([prods, cats]) => {
       setProducts(prods.status === 'fulfilled' ? prods.value.data.products : []);
-      setCategories(cats.status === 'fulfilled' ? cats.value.data : []);
+      setCategories(cats.status === 'fulfilled' ? cats.value.data.categories : []);
     }).finally(() => setLoading(false));
   };
 
